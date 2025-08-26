@@ -6,27 +6,57 @@ const packagesConfig = JSON.parse(fs.readFileSync('packages.json', 'utf8'));
 const indexTemplate = JSON.parse(fs.readFileSync('index.json', 'utf8'));
 
 async function fetchPackageInfo(repoUrl, packageJsonPath) {
-    const url = repoUrl.replace('https://github.com/', 'https://raw.githubusercontent.com/') + '/main/' + packageJsonPath;
+    // Try main branch first, then master branch
+    const baseUrl = repoUrl.replace('https://github.com/', 'https://raw.githubusercontent.com/');
+    const urls = [
+        `${baseUrl}/main/${packageJsonPath}`,
+        `${baseUrl}/master/${packageJsonPath}`
+    ];
     
     return new Promise((resolve, reject) => {
-        https.get(url, (res) => {
-            let data = '';
+        let currentUrlIndex = 0;
+        
+        function tryNextUrl() {
+            if (currentUrlIndex >= urls.length) {
+                reject(new Error('All URL attempts failed'));
+                return;
+            }
             
-            res.on('data', (chunk) => {
-                data += chunk;
-            });
+            const currentUrl = urls[currentUrlIndex];
+            console.log(`Trying URL: ${currentUrl}`);
             
-            res.on('end', () => {
-                try {
-                    const packageJson = JSON.parse(data);
-                    resolve(packageJson);
-                } catch (err) {
-                    reject(err);
+            https.get(currentUrl, (res) => {
+                let data = '';
+                
+                if (res.statusCode !== 200) {
+                    console.log(`URL failed with status ${res.statusCode}: ${currentUrl}`);
+                    currentUrlIndex++;
+                    tryNextUrl();
+                    return;
                 }
+                
+                res.on('data', (chunk) => {
+                    data += chunk;
+                });
+                
+                res.on('end', () => {
+                    try {
+                        const packageJson = JSON.parse(data);
+                        resolve(packageJson);
+                    } catch (err) {
+                        console.log(`JSON parse error for ${currentUrl}:`, err.message);
+                        currentUrlIndex++;
+                        tryNextUrl();
+                    }
+                });
+            }).on('error', (err) => {
+                console.log(`Request error for ${currentUrl}:`, err.message);
+                currentUrlIndex++;
+                tryNextUrl();
             });
-        }).on('error', (err) => {
-            reject(err);
-        });
+        }
+        
+        tryNextUrl();
     });
 }
 
