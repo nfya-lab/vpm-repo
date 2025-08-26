@@ -11,10 +11,10 @@
   "packages": {
     "net.nfya.example-package1": {
       "versions": {
-        "1.0.0": {
+        "1.0.1": {
           "name": "net.nfya.example-package1",
           "displayName": "Example Package 1",
-          "version": "1.0.0",
+          "version": "1.0.1",
           "description": "First example VRChat package for testing VPM repository",
           "unity": "2022.3",
           "unityRelease": "6f1",
@@ -36,7 +36,7 @@
           },
           "legacyFolders": {},
           "legacyFiles": {},
-          "url": "https://github.com/nfya-lab/example-package1/releases/download/v1.0.0/net.nfya.example-package1-1.0.0.zip"
+          "url": "https://github.com/nfya-lab/example-package1/releases/download/v1.0.1/net.nfya.example-package1-1.0.1.zip"
         }
       }
     },
@@ -75,7 +75,7 @@
   },
   "versions": {
     "net.nfya.example-package1": [
-      "1.0.0"
+      "1.0.1"
     ],
     "net.nfya.example-package2": [
       "1.1.0"
