@@ -8,7 +8,7 @@ VRChat Creator Companion用のパッケージリポジトリです。
 VRChat Creator Companion で以下のURLを追加してください：
 
 ```
-https://nfya-lab.github.io/vrchat-vpm-repo/index.json
+https://nfya-lab.github.io/vpm-repo/index.json
 ```
 
 ## パッケージの追加方法
