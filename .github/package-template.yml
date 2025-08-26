@@ -1,0 +1,100 @@
+# VRChat VPMパッケージ用のGitHub Actionsテンプレート
+# 新しいパッケージリポジトリの .github/workflows/release.yml として使用してください
+
+name: Create UPM Release
+
+on:
+  push:
+    branches:
+      - master
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    if: startsWith(github.event.head_commit.message, 'Release ')
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Get package info
+      id: package
+      run: |
+        PACKAGE_NAME=$(jq -r '.name' package.json)
+        VERSION=$(jq -r '.version' package.json)
+        echo "name=${PACKAGE_NAME}" >> $GITHUB_OUTPUT
+        echo "version=${VERSION}" >> $GITHUB_OUTPUT
+        
+    - name: Check if tag exists
+      id: check_tag
+      run: |
+        if git rev-parse "v${{ steps.package.outputs.version }}" >/dev/null 2>&1; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Create and push tag
+      if: steps.check_tag.outputs.exists == 'false'
+      run: |
+        git tag "v${{ steps.package.outputs.version }}"
+        git push origin "v${{ steps.package.outputs.version }}"
+        
+    - name: Create UPM branch
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git checkout -b upm
+        git push origin upm --force
+        
+    - name: Create package zip
+      run: |
+        mkdir -p package-temp
+        rsync -av --exclude='.git' --exclude='.github' --exclude='package-temp' . package-temp/
+        cd package-temp
+        zip -r "../${{ steps.package.outputs.name }}-${{ steps.package.outputs.version }}.zip" .
+        
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ steps.package.outputs.version }}
+        name: v${{ steps.package.outputs.version }}
+        body: |
+          ## ${{ steps.package.outputs.name }} v${{ steps.package.outputs.version }}
+          
+          **Installation via VRChat Creator Companion:**
+          1. Add this repository to VCC: `https://nfya-lab.github.io/vpm-repo/index.json`
+          2. Install ${{ steps.package.outputs.name }} from the package list
+          
+          **Manual Installation via Package Manager:**
+          1. Open Window > Package Manager in Unity
+          2. Click the "+" button and select "Add package from git URL"
+          3. Enter: `https://github.com/${{ github.repository }}.git?path=/`
+          
+          **Download Package:**
+          Download the zip file below for manual installation.
+          
+          ### Changes
+          See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/v${{ steps.package.outputs.version }}/CHANGELOG.md) for details.
+        files: ${{ steps.package.outputs.name }}-${{ steps.package.outputs.version }}.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Notify VPM Repository
+      uses: peter-evans/repository-dispatch@v3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        repository: nfya-lab/vpm-repo
+        event-type: package_updated
+        client-payload: |
+          {
+            "repository": "${{ github.server_url }}/${{ github.repository }}",
+            "package_name": "${{ steps.package.outputs.name }}",
+            "version": "${{ steps.package.outputs.version }}"
+          }

@@ -1,0 +1,76 @@
+name: Sync Package Updates
+
+on:
+  repository_dispatch:
+    types: [package_updated]
+
+permissions:
+  contents: write
+
+jobs:
+  sync-package:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Log received event
+      run: |
+        echo "Received package update event"
+        echo "Repository: ${{ github.event.client_payload.repository }}"
+        echo "Package: ${{ github.event.client_payload.package_name }}"
+        echo "Version: ${{ github.event.client_payload.version }}"
+        
+    - name: Update packages.json if needed
+      run: |
+        REPO_URL="${{ github.event.client_payload.repository }}"
+        PACKAGE_NAME="${{ github.event.client_payload.package_name }}"
+        
+        # packages.jsonに該当パッケージが存在するかチェック
+        if ! grep -q "$PACKAGE_NAME" packages.json; then
+          echo "Adding new package to packages.json"
+          
+          # packages.jsonを更新（新しいパッケージを追加）
+          jq --arg name "$PACKAGE_NAME" --arg repo "$REPO_URL" \
+            '.packages += [{
+              "name": $name,
+              "repo": $repo,
+              "packageJsonPath": "package.json"
+            }]' packages.json > packages_tmp.json
+          mv packages_tmp.json packages.json
+          
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add packages.json
+          git commit -m "Auto-add package $PACKAGE_NAME to repository"
+        else
+          echo "Package $PACKAGE_NAME already exists in packages.json"
+        fi
+        
+    - name: Update VPM repository index
+      run: node update-packages.js
+      
+    - name: Check for changes
+      id: check_changes
+      run: |
+        if git diff --quiet index.json; then
+          echo "changes=false" >> $GITHUB_OUTPUT
+        else
+          echo "changes=true" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Commit updated index.json
+      if: steps.check_changes.outputs.changes == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add index.json
+        git commit -m "Auto-update VPM repository from ${{ github.event.client_payload.package_name }} v${{ github.event.client_payload.version }}"
+        git push
