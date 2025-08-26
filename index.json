@@ -8,38 +8,6 @@
     "url": "https://github.com/nfya-lab"
   },
   "description": "Custom VRChat packages by nfya",
-  "packages": {
-    "net.nfya.example-package": {
-      "versions": {
-        "1.0.0": {
-          "name": "net.nfya.example-package",
-          "displayName": "Example Package",
-          "version": "1.0.0",
-          "description": "An example VRChat package",
-          "unity": "2022.3",
-          "unityRelease": "6f1",
-          "author": {
-            "name": "nfya",
-            "email": "quz62528@gmail.com",
-            "url": "https://github.com/nfya-lab"
-          },
-          "changelogUrl": "https://github.com/nfya-lab/vrchat-vpm-repo/blob/master/Packages/net.nfya.example-package/CHANGELOG.md",
-          "documentationUrl": "https://github.com/nfya-lab/vrchat-vpm-repo/blob/master/Packages/net.nfya.example-package/README.md",
-          "licensesUrl": "https://github.com/nfya-lab/vrchat-vpm-repo/blob/master/Packages/net.nfya.example-package/LICENSE.md",
-          "dependencies": {
-            "com.vrchat.avatars": "3.5.0",
-            "com.vrchat.base": "3.5.0"
-          },
-          "vpmDependencies": {
-            "com.vrchat.avatars": ">=3.5.0",
-            "com.vrchat.base": ">=3.5.0"
-          },
-          "url": "https://github.com/nfya-lab/vrchat-vpm-repo/releases/download/net.nfya.example-package-1.0.0/net.nfya.example-package-1.0.0.zip"
-        }
-      }
-    }
-  },
-  "versions": {
-    "net.nfya.example-package": ["1.0.0"]
-  }
+  "packages": {},
+  "versions": {}
 }

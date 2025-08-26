@@ -1,0 +1,9 @@
+{
+  "packages": [
+    {
+      "name": "net.nfya.example-package",
+      "repo": "https://github.com/nfya-lab/example-package",
+      "packageJsonPath": "package.json"
+    }
+  ]
+}
