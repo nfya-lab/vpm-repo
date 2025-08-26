@@ -1,8 +1,13 @@
 {
   "packages": [
     {
-      "name": "net.nfya.example-package",
+      "name": "net.nfya.example-package1",
       "repo": "https://github.com/nfya-lab/example-package1",
+      "packageJsonPath": "package.json"
+    },
+    {
+      "name": "net.nfya.example-package2",
+      "repo": "https://github.com/nfya-lab/example-package2",
       "packageJsonPath": "package.json"
     }
   ]
