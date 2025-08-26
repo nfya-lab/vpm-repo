@@ -60,6 +60,31 @@ async function fetchPackageInfo(repoUrl, packageJsonPath) {
     });
 }
 
+async function detectDefaultBranch(repoUrl) {
+    // Try to detect the default branch by checking which URL works
+    const baseUrl = repoUrl.replace('https://github.com/', 'https://raw.githubusercontent.com/');
+    const branches = ['main', 'master'];
+    
+    for (const branch of branches) {
+        try {
+            const testUrl = `${baseUrl}/${branch}/package.json`;
+            const response = await new Promise((resolve, reject) => {
+                https.get(testUrl, (res) => {
+                    resolve(res.statusCode);
+                }).on('error', reject);
+            });
+            
+            if (response === 200) {
+                return branch;
+            }
+        } catch (error) {
+            continue;
+        }
+    }
+    
+    return 'master'; // fallback
+}
+
 async function updateIndex() {
     const packages = {};
     const versions = {};
@@ -68,6 +93,7 @@ async function updateIndex() {
         try {
             console.log(`Fetching package info for ${pkg.name}...`);
             const packageJson = await fetchPackageInfo(pkg.repo, pkg.packageJsonPath);
+            const defaultBranch = await detectDefaultBranch(pkg.repo);
             
             // パッケージ情報を構築
             if (!packages[pkg.name]) {
@@ -76,7 +102,7 @@ async function updateIndex() {
             
             packages[pkg.name].versions[packageJson.version] = {
                 ...packageJson,
-                url: `${pkg.repo}/releases/download/${pkg.name}-${packageJson.version}/${pkg.name}-${packageJson.version}.zip`
+                url: `${pkg.repo}/archive/refs/heads/${defaultBranch}.zip`
             };
             
             if (!versions[pkg.name]) {
