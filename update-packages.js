@@ -102,7 +102,7 @@ async function updateIndex() {
             
             packages[pkg.name].versions[packageJson.version] = {
                 ...packageJson,
-                url: `${pkg.repo}/releases/download/${pkg.name}-${packageJson.version}/${pkg.name}-${packageJson.version}.zip`
+                url: `${pkg.repo}/releases/download/v${packageJson.version}/${pkg.name}-${packageJson.version}.zip`
             };
             
             if (!versions[pkg.name]) {
