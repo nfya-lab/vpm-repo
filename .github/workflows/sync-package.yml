@@ -3,6 +3,20 @@ name: Sync Package Updates
 on:
   repository_dispatch:
     types: [package_updated]
+  workflow_dispatch:
+    inputs:
+      test_repository:
+        description: 'Test repository URL'
+        required: false
+        default: 'https://github.com/nfya-lab/example-package1'
+      test_package:
+        description: 'Test package name'  
+        required: false
+        default: 'net.nfya.example-package1'
+      test_version:
+        description: 'Test version'
+        required: false
+        default: '1.0.3'
 
 permissions:
   contents: write
@@ -21,17 +35,30 @@ jobs:
       with:
         node-version: '18'
         
+    - name: Set variables
+      id: vars
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          echo "repository=${{ github.event.inputs.test_repository }}" >> $GITHUB_OUTPUT
+          echo "package_name=${{ github.event.inputs.test_package }}" >> $GITHUB_OUTPUT  
+          echo "version=${{ github.event.inputs.test_version }}" >> $GITHUB_OUTPUT
+        else
+          echo "repository=${{ github.event.client_payload.repository }}" >> $GITHUB_OUTPUT
+          echo "package_name=${{ github.event.client_payload.package_name }}" >> $GITHUB_OUTPUT
+          echo "version=${{ github.event.client_payload.version }}" >> $GITHUB_OUTPUT
+        fi
+        
     - name: Log received event
       run: |
-        echo "Received package update event"
-        echo "Repository: ${{ github.event.client_payload.repository }}"
-        echo "Package: ${{ github.event.client_payload.package_name }}"
-        echo "Version: ${{ github.event.client_payload.version }}"
+        echo "Event type: ${{ github.event_name }}"
+        echo "Repository: ${{ steps.vars.outputs.repository }}"
+        echo "Package: ${{ steps.vars.outputs.package_name }}"
+        echo "Version: ${{ steps.vars.outputs.version }}"
         
     - name: Update packages.json if needed
       run: |
-        REPO_URL="${{ github.event.client_payload.repository }}"
-        PACKAGE_NAME="${{ github.event.client_payload.package_name }}"
+        REPO_URL="${{ steps.vars.outputs.repository }}"
+        PACKAGE_NAME="${{ steps.vars.outputs.package_name }}"
         
         # packages.jsonに該当パッケージが存在するかチェック
         if ! grep -q "$PACKAGE_NAME" packages.json; then
@@ -72,5 +99,5 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add index.json
-        git commit -m "Auto-update VPM repository from ${{ github.event.client_payload.package_name }} v${{ github.event.client_payload.version }}"
+        git commit -m "Auto-update VPM repository from ${{ steps.vars.outputs.package_name }} v${{ steps.vars.outputs.version }}"
         git push
