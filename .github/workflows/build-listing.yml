@@ -1,0 +1,57 @@
+name: Build Repo Listing
+
+env:
+  listPublishDirectory: Website
+  pathToCi: ci
+  
+on: 
+  workflow_dispatch:
+  workflow_call:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-listing:
+    runs-on: ubuntu-latest
+    steps:
+    
+      - uses: actions/checkout@v3
+      
+      - name: Checkout VPM CLI
+        uses: actions/checkout@v3
+        with:
+          repository: vrchat-community/vpm
+          path: vpm-cli
+          
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 6.0.x
+          
+      - name: Build VPM CLI
+        run: dotnet build vpm-cli --configuration Release
+        
+      - name: Find VPM CLI
+        run: find vpm-cli -name "vpm" -type f
+        
+      - name: Make VPM CLI Executable  
+        run: chmod +x vpm-cli/vpm/bin/Release/net6.0/vpm
+        
+      - name: Build Repository Listing
+        run: vpm-cli/vpm/bin/Release/net6.0/vpm repo pack -o index.json Packages/
+        
+      - name: Create release directory
+        run: mkdir -p ${{ env.listPublishDirectory }}
+        
+      - name: Copy index.json to release directory  
+        run: cp index.json ${{ env.listPublishDirectory }}/
+        
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./${{ env.listPublishDirectory }}
+          destination_dir: ./
