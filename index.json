@@ -2,11 +2,7 @@
   "name": "nfya VPM Repository",
   "id": "net.nfya.vpm-repo",
   "url": "https://nfya-lab.github.io/vpm-repo/index.json",
-  "author": {
-    "name": "nfya",
-    "email": "quz62528@gmail.com",
-    "url": "https://github.com/nfya-lab"
-  },
+  "author": "nfya <quz62528@gmail.com> (https://github.com/nfya-lab)",
   "description": "Custom VRChat packages by nfya",
   "packages": {
     "net.nfya.example-package1": {
@@ -18,11 +14,7 @@
           "description": "First example VRChat package for testing VPM repository",
           "unity": "2022.3",
           "unityRelease": "6f1",
-          "author": {
-            "name": "nfya",
-            "email": "quz62528@gmail.com",
-            "url": "https://github.com/nfya-lab"
-          },
+          "author": "nfya <quz62528@gmail.com> (https://github.com/nfya-lab)",
           "changelogUrl": "https://github.com/nfya-lab/example-package1/blob/main/CHANGELOG.md",
           "documentationUrl": "https://github.com/nfya-lab/example-package1/blob/main/README.md",
           "licensesUrl": "https://github.com/nfya-lab/example-package1/blob/main/LICENSE.md",
@@ -49,11 +41,7 @@
           "description": "Second example VRChat package with advanced features",
           "unity": "2022.3",
           "unityRelease": "6f1",
-          "author": {
-            "name": "nfya",
-            "email": "quz62528@gmail.com",
-            "url": "https://github.com/nfya-lab"
-          },
+          "author": "nfya <quz62528@gmail.com> (https://github.com/nfya-lab)",
           "changelogUrl": "https://github.com/nfya-lab/example-package2/blob/main/CHANGELOG.md",
           "documentationUrl": "https://github.com/nfya-lab/example-package2/blob/main/README.md",
           "licensesUrl": "https://github.com/nfya-lab/example-package2/blob/main/LICENSE.md",
