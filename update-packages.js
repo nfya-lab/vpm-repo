@@ -100,14 +100,8 @@ async function updateIndex() {
                 packages[pkg.name] = { versions: {} };
             }
             
-            // VPM仕様に合わせてauthorフィールドを文字列形式に変換
-            const authorString = typeof packageJson.author === 'object' 
-                ? `${packageJson.author.name} <${packageJson.author.email}> (${packageJson.author.url})`
-                : packageJson.author;
-
             packages[pkg.name].versions[packageJson.version] = {
                 ...packageJson,
-                author: authorString,
                 url: `${pkg.repo}/archive/refs/heads/${defaultBranch}.zip`
             };
             
