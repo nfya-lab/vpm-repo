@@ -9,6 +9,11 @@
       "name": "net.nfya.moletool",
       "repo": "https://github.com/nfya-lab/MoleTool",
       "packageJsonPath": "package.json"
+    },
+    {
+      "name": "net.nfya.alphatrim",
+      "repo": "https://github.com/nfya-lab/AlphaTrim",
+      "packageJsonPath": "package.json"
     }
   ]
 }
