@@ -4,6 +4,11 @@
       "name": "net.nfya.example-package1",
       "repo": "https://github.com/nfya-lab/example-package1",
       "packageJsonPath": "package.json"
+    },
+    {
+      "name": "net.nfya.moletool",
+      "repo": "https://github.com/nfya-lab/MoleTool",
+      "packageJsonPath": "package.json"
     }
   ]
 }
